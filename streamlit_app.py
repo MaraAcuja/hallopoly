@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
-from importlib import import_module
+
+# statische Importe der Seitenmodule
+import karte
+import details
+import tabelle
 
 st.set_page_config(page_title="Hallopoly", layout="wide")
 
@@ -30,19 +34,22 @@ if "edited" not in st.session_state:
 
 # Sidebar navigation (keeps UI consistent across pages)
 st.sidebar.title("Navigation")
-sel = st.sidebar.radio("Seite", ["Karte", "Details", "Tabelle"],
-                       index=0 if st.session_state.page=="Karte" else (1 if st.session_state.page=="Details" else 2))
+sel = st.sidebar.radio(
+    "Seite",
+    ["Karte", "Details", "Tabelle"],
+    index=0 if st.session_state.page == "Karte" else (1 if st.session_state.page == "Details" else 2)
+)
 if sel != st.session_state.page:
     st.session_state.page = sel
     st.rerun()
 
-# Simple page router: import the page modules and call their `app()` function
+# Mapping auf die app()-Funktionen der importierten Module
 page_map = {
-    "Karte": "karte",
-    "Details": "details",
-    "Tabelle": "tabelle"
+    "Karte": karte.app,
+    "Details": details.app,
+    "Tabelle": tabelle.app
 }
 
-module_name = page_map.get(st.session_state.page, "karte")
-mod = import_module(module_name)
-mod.app()
+# Aufruf der passenden Seite
+# Fallback auf karte.app falls key fehlt
+page_map.get(st.session_state.page, karte.app)()
